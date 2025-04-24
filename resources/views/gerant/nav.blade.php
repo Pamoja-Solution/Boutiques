@@ -36,6 +36,10 @@
                     <x-nav-link href="{{ route('achats.index') }}" :active="request()->routeIs('achats.index')">
                         {{ __('Achats') }}
                     </x-nav-link>
+
+                    <x-nav-link href="{{ route('rayons.index') }}" :active="request()->routeIs('rayons.index')">
+                        {{ __('Rayons') }}
+                    </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -136,11 +140,15 @@
             <x-responsive-nav-link href="{{ route('ventes.index') }}" :active="request()->routeIs('ventes.index')">
                 {{ __('Ventes') }}
             </x-responsive-nav-link>
-            
+            <x-responsive-nav-link href="{{ route('achats.index') }}" :active="request()->routeIs('achats.index')">
+                {{ __('Rayons') }}
+            </x-responsive-nav-link>
             @if (auth()->user()->isGerant() || auth()->user()->isSuperviseur())
             <x-responsive-nav-link href="{{ route('achats.index') }}" :active="request()->routeIs('achats.index')">
                 {{ __('Achats') }}
             </x-responsive-nav-link>
+
+            
             @endif
         </div>
 

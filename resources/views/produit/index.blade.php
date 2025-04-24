@@ -1,6 +1,6 @@
 <x-app-layout>
-    @section("titre","Station de Travail")
+    @section("titre","Gestion des Produits")
     @include('gerant.nav')
 
-    <livewire:medicament-manager>
+    <livewire:produit-manager>
 </x-app-layout>

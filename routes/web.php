@@ -17,6 +17,7 @@ use App\Livewire\VenteManager;
 use App\Livewire\AchatManager;
 use App\Livewire\GestionClients;
 use App\Livewire\GestionFournisseurs;
+use App\Livewire\RayonManager;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,7 +35,9 @@ Route::middleware([
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     
     // Routes protégées par le middleware de rôle
-   
+    Route::middleware('role:gerant')->group(function () {
+        Route::get('/rayons', RayonManager::class)->name('rayons.index');
+    });
     
     // Routes accessibles à tous les utilisateurs authentifiés
     Route::get('/produits', function(){
@@ -48,6 +51,7 @@ Route::prefix('/users')->middleware('role:gerant')->group(function () {
     Route::get('/users', UserManager::class)->name('users.index');
     Route::get('/achats', AchatManager::class)->name('achats.index');
 });
+
 Route::get('/vendeur/dashboard', [UserController::class, 'dashboard'])
     ->middleware('role:vendeur')
     ->name('vendeur.dashboard');
