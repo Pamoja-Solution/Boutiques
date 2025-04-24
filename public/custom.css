@@ -1,0 +1,36 @@
+@push('styles')
+    <style>
+        .futurist-container {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        .futurist-btn {
+            @apply px-4 py-2 rounded-lg transition-all duration-200 flex items-center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .futurist-input {
+            @apply w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500;
+        }
+        
+        .futurist-card {
+            @apply rounded-xl shadow-lg border border-gray-700 transition-all duration-300 hover:shadow-xl;
+        }
+        
+        .futurist-icon {
+            @apply h-12 w-12 rounded-full flex items-center justify-center text-xl;
+        }
+        
+        /* Animation pour les cartes de stats */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        
+        .futurist-card:hover {
+            animation: pulse 2s infinite;
+        }
+    </style>
+    @endpush
+    
+    
