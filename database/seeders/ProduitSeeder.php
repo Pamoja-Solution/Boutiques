@@ -13,7 +13,7 @@ class ProduitSeeder extends Seeder
 {
     public function run()
     {
-        /*/ Création des fournisseurs
+        // Création des fournisseurs
         $fournisseurs = [
             ['nom' => 'Fournisseur Général', 'telephone' => '0102030405'],
             ['nom' => 'Distribagro',  'telephone' => '0203040506'],
@@ -65,7 +65,7 @@ class ProduitSeeder extends Seeder
         foreach ($sousRayons as $sousRayon) {
             SousRayon::create($sousRayon);
         }
-*/
+
         // Création des produits
         $produits = [
             // Boissons - Eaux
