@@ -241,7 +241,7 @@ class FuturistSalesDashboard extends Component
 
     public function getClientsProperty()
     {
-        return Client::orderBy('name')->get();
+        return Client::orderBy('nom')->get();
     }
 
     public function getTopProduitsProperty()
