@@ -91,12 +91,16 @@ class Dashboard extends Component
                 $dateFormat = '%Y-%m-%d';
         }
         
-        $salesData = Vente::where('created_at', '>=', $startDate)
+        /*$salesData = Vente::where('created_at', '>=', $startDate)
         ->select(DB::raw("strftime('%Y-%m-%d', created_at) as date"), DB::raw('SUM(total) as amount'))
         ->groupBy('date')
         ->orderBy('date')
+        ->get();*/
+        $salesData = Vente::where('created_at', '>=', $startDate)
+        ->selectRaw("DATE(created_at) as date, SUM(total) as amount")
+        ->groupByRaw("DATE(created_at)")
+        ->orderBy('date')
         ->get();
-    
             
         return $salesData;
     }

@@ -30,7 +30,7 @@ return new class extends Migration
             //$table->foreignId('sous_rayon_id')->constrained()->onDelete('SET NULL');
             $table->foreignId('sous_rayon_id')->nullable()->constrained()->onDelete('SET NULL');
             $table->foreignId('fournisseur_id')->nullable()->constrained()->nullOnDelete();
-            
+            $table->date('date_expiration')->nullable(); // Seulement pour certains produits
             // Metadata
             $table->string('unite_mesure')->default('unité');
             $table->boolean('taxable')->default(true);
