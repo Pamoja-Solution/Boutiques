@@ -27,7 +27,8 @@ return new class extends Migration
             $table->integer('seuil_alerte')->default(3);
             
             // Relations d'emplacement
-            $table->foreignId('sous_rayon_id')->constrained()->onDelete('SET NULL');
+            //$table->foreignId('sous_rayon_id')->constrained()->onDelete('SET NULL');
+            $table->foreignId('sous_rayon_id')->nullable()->constrained()->onDelete('SET NULL');
             $table->foreignId('fournisseur_id')->constrained()->nullOnDelete();
             
             // Metadata

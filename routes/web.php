@@ -32,7 +32,9 @@ Route::middleware([
         return redirect()->route('dashboard');
     });
     
-    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/dashboard', function(){
+        return view ('dashboard.index');
+    })->name('dashboard');
     
     // Routes protégées par le middleware de rôle
     Route::middleware('role:gerant')->group(function () {
