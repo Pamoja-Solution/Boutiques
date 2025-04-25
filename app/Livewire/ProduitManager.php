@@ -45,6 +45,11 @@ class ProduitManager extends Component
 
     public function render()
     {
+        $t=Produit::where('nom', 'like', "%{$this->search}%")
+        ->orWhere('reference_interne', 'like', "%{$this->search}%")
+        ->orWhere('code_barre', 'like', "%{$this->search}%")
+        ->paginate(10);
+        //dd($t);
         return view('livewire.produit-manager', [
             'produits' => Produit::where('nom', 'like', "%{$this->search}%")
                             ->orWhere('reference_interne', 'like', "%{$this->search}%")

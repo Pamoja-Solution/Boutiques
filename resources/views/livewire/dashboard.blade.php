@@ -169,29 +169,29 @@
                 </div>
                 
                 <!-- Produits qui expirent bientôt -->
-                <div class="bg-white overflow-hidden shadow rounded-lg">
+                <!--div class="bg-white overflow-hidden shadow rounded-lg">
                     <div class="px-4 py-5 sm:p-6">
                         <h3 class="text-lg leading-6 font-medium text-orange-600">Produits expirant bientôt</h3>
                         <div class="mt-4 max-h-64 overflow-y-auto">
                             <ul class="divide-y divide-gray-200">
-                                @forelse($expiringProduits as $med)
+                                @ forelse($expiringProduits as $med)
                                 <li class="py-3 flex justify-between items-center">
                                     <div class="flex items-center">
-                                        <span class="text-sm font-medium text-gray-900">{{ $med->nom }}</span>
+                                        <span class="text-sm font-medium text-gray-900">{ { $med->nom }}</span>
                                     </div>
                                     <div class="ml-3">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                            Expire le {{ \Carbon\Carbon::parse($med->date_expiration)->format('d/m/Y') }}
+                                            Expire le { { \Carbon\Carbon::parse($med->date_expiration)->format('d/m/Y') }}
                                         </span>
                                     </div>
                                 </li>
-                                @empty
+                                @ empty
                                 <li class="py-3 text-sm text-gray-500">Aucun médicament n'expire bientôt</li>
-                                @endforelse
+                                @ endforelse
                             </ul>
                         </div>
                     </div>
-                </div>
+                </div-->
             </div>
         </div>
     </div>
