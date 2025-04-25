@@ -29,7 +29,7 @@ return new class extends Migration
             // Relations d'emplacement
             //$table->foreignId('sous_rayon_id')->constrained()->onDelete('SET NULL');
             $table->foreignId('sous_rayon_id')->nullable()->constrained()->onDelete('SET NULL');
-            $table->foreignId('fournisseur_id')->constrained()->nullOnDelete();
+            $table->foreignId('fournisseur_id')->nullable()->constrained()->nullOnDelete();
             
             // Metadata
             $table->string('unite_mesure')->default('unité');
