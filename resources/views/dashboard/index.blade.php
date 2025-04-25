@@ -6,5 +6,7 @@
 
     <livewire:dashboard>
         @else
+    <livewire:gestion-vente>
+
         @endif
 </x-app-layout>

@@ -6,6 +6,7 @@ use App\Models\Produit;
 use App\Models\Fournisseur;
 use App\Models\Rayon;
 use App\Models\SousRayon;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Str;
@@ -45,11 +46,8 @@ class ProduitManager extends Component
 
     public function render()
     {
-        $t=Produit::where('nom', 'like', "%{$this->search}%")
-        ->orWhere('reference_interne', 'like', "%{$this->search}%")
-        ->orWhere('code_barre', 'like', "%{$this->search}%")
-        ->paginate(10);
-        //dd($t);
+                abort_if(!Auth::user()?->isGerant(), 403);  
+
         return view('livewire.produit-manager', [
             'produits' => Produit::where('nom', 'like', "%{$this->search}%")
                             ->orWhere('reference_interne', 'like', "%{$this->search}%")
