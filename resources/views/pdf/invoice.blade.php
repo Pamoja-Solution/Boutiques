@@ -68,7 +68,7 @@
         <tbody>
             @foreach($vente->details as $detail)
             <tr>
-                <td>{{ $detail->medicament->nom }}</td>
+                <td>{{ $detail->produit->nom }}</td>
                 <td>{{ $detail->quantite }}</td>
                 <td>{{ number_format($detail->prix_unitaire, 2) }} Fc</td>
                 <td>{{ number_format($detail->quantite * $detail->prix_unitaire, 2) }} Fc</td>

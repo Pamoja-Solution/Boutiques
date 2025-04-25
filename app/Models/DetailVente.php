@@ -8,12 +8,12 @@ class DetailVente extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['vente_id', 'medicament_id', 'quantite', 'prix_unitaire'];
+    protected $fillable = ['vente_id', 'produit_id', 'quantite', 'prix_unitaire'];
     protected $table ='details_vente';
 
-    public function medicament()
+    public function produit()
     {
-        return $this->belongsTo(Medicament::class);
+        return $this->belongsTo(Produit::class);
     }
 
     public function vente()

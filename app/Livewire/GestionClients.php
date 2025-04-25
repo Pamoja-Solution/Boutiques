@@ -27,7 +27,7 @@ class GestionClients extends Component
 
     public function render()
     {
-        abort_if(!Auth::user()?->isGerant(), 403);  
+        //abort_if(!Auth::user()?->isGerant(), 403);  
 
         $clients = Client::where('nom', 'like', '%' . $this->search . '%')
             ->orWhere('telephone', 'like', '%' . $this->search . '%')

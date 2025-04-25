@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.app')]
@@ -30,11 +31,11 @@ class GestionVente extends Component
     // Produit sélectionné pour voir les détails
     public $selectedProduit = null;
     
-    // Recherche de clients
+    // Nouvelles propriétés pour la recherche de clients
     public $clientSearch = '';
     public $filteredClients = [];
     
-    // Nouveau client
+    // Propriétés pour le nouveau client
     public $newClient = [
         'nom' => '',
         'telephone' => '',
@@ -42,8 +43,10 @@ class GestionVente extends Component
         'adresse' => ''
     ];
 
+    // Propriété pour suivre les erreurs de validation
     public $hasValidationErrors = false;
 
+    // Modifiez les règles de validation
     protected $rules = [
         'clientId' => 'required_without:newClient.nom|exists:clients,id',
         'selectedProduits' => 'required|array|min:1',
@@ -55,9 +58,11 @@ class GestionVente extends Component
         'newClient.adresse' => 'nullable|string|max:255',
     ];
 
+    // Modifiez la méthode validateSaleForm
     public function validateSaleForm()
     {
         try {
+            // Valider soit clientId, soit newClient
             if (empty($this->clientId)) {
                 $this->validate([
                     'newClient.nom' => 'required|string|max:255',
@@ -69,6 +74,7 @@ class GestionVente extends Component
                 $this->validate(['clientId' => 'exists:clients,id']);
             }
 
+            // Valider les produits
             $this->validate([
                 'selectedProduits' => 'required|array|min:1',
                 'selectedProduits.*' => 'exists:produits,id',
@@ -93,9 +99,9 @@ class GestionVente extends Component
     
         // Vérifier le stock
         $produits = Produit::whereIn('id', $this->selectedProduits)->get();
-        foreach ($produits as $produit) {
-            if (($this->quantities[$produit->id] ?? 0) > $produit->stock) {
-                $this->addError('quantities.' . $produit->id, 'Stock insuffisant');
+        foreach ($produits as $prod) {
+            if (($this->quantities[$prod->id] ?? 0) > $prod->stock) {
+                $this->addError('quantities.' . $prod->id, 'Stock insuffisant');
                 return;
             }
         }
@@ -103,7 +109,7 @@ class GestionVente extends Component
         try {
             DB::beginTransaction();
     
-            // Créer client si nécessaire
+            // Créer un nouveau client si nécessaire
             if (empty($this->clientId)) {
                 $client = Client::create([
                     'nom' => $this->newClient['nom'],
@@ -116,9 +122,9 @@ class GestionVente extends Component
     
             // Calcul du total
             $total = 0;
-            foreach ($produits as $produit) {
-                $quantity = $this->quantities[$produit->id] ?? 0;
-                $total += $produit->prix_vente * $quantity;
+            foreach ($produits as $prod) {
+                $quantity = $this->quantities[$prod->id] ?? 0;
+                $total += $prod->prix_vente * $quantity;
             }
     
             $vente = Vente::create([
@@ -127,26 +133,27 @@ class GestionVente extends Component
                 'user_id' => Auth::user()->id,
             ]);
     
-            foreach ($produits as $produit) {
-                $quantity = $this->quantities[$produit->id] ?? 0;
+            foreach ($produits as $prod) {
+                $quantity = $this->quantities[$prod->id] ?? 0;
                 
                 DetailVente::create([
                     'vente_id' => $vente->id,
-                    'produit_id' => $produit->id,
+                    'produit_id' => $prod->id,
                     'quantite' => $quantity,
-                    'prix_unitaire' => $produit->prix_vente
+                    'prix_unitaire' => $prod->prix_vente
                 ]);
                 
-                $produit->stock -= $quantity;
-                $produit->save();
+                $prod->stock -= $quantity;
+                $prod->save();
             }
     
             DB::commit();
     
             session()->flash('message', 'Vente effectuée avec succès');
+            
             $this->reset(['selectedProduits', 'quantities', 'newClient']);
             
-            // Rediriger vers l'impression
+            // Rediriger vers la route d'impression immédiatement
             $this->dispatch('openNewTab', url: route('ventes.print-invoice', ['vente' => $vente->id]));
             
         } catch (\Exception $e) {
@@ -155,14 +162,16 @@ class GestionVente extends Component
         }
     }
     
+    // Méthode modifiée pour rechercher les clients manuellement
     public function searchClients()
     {
-        return Client::when($this->clientSearch, function($query) {
+        $client = $this->filteredClients = Client::when($this->clientSearch, function($query) {
             return $query->where('nom', 'like', '%'.$this->clientSearch.'%')
                     ->orWhere('telephone', 'like', '%'.$this->clientSearch.'%');
         })
         ->limit(10)
         ->get();
+        return $client;
     }
 
     protected $messages = [
@@ -170,11 +179,13 @@ class GestionVente extends Component
         'selectedProduits.required' => 'Veuillez sélectionner au moins un produit',
         'quantities.*.required' => 'La quantité est requise',
         'quantities.*.min' => 'La quantité doit être au moins 1',
+        // Messages pour le nouveau client
         'newClient.nom.required' => 'Le nom est requis',
         'newClient.telephone.required' => 'Le téléphone est requis',
         'newClient.email.email' => 'Format d\'email invalide',
     ];
 
+    // Propriétés pour le suivi des modifications
     protected $listeners = ['refreshComponent' => '$refresh'];
 
     public function mount()
@@ -183,9 +194,10 @@ class GestionVente extends Component
         $this->updateFilteredClients();
     }
     
+    // Nouvelle méthode pour rechercher les produits (action manuelle)
     public function searchProduits()
     {
-        $this->resetPage();
+        $this->resetPage(); // Réinitialiser la pagination
     }
     
     public function render()
@@ -193,11 +205,15 @@ class GestionVente extends Component
         $query = Produit::query()
             ->where(function ($query) {
                 $query->where('nom', 'like', '%' . $this->search . '%')
-                    ->orWhere('reference_interne', 'like', '%' . strtoupper($this->search) . '%')
-                    ->orWhere('code_barre', $this->search);
+                    ->orWhere('reference_interne', 'like', '%' . $this->search . '%');
             })
-            ->where('stock', '>', 0)
-            ->with('sousRayon.rayon');
+            ->where('stock', '>', 0);
+            
+        // Vérifie si le produit a une date d'expiration et si elle est valide
+        $query->where(function ($query) {
+            $query->whereNull('date_expiration')
+                ->orWhere('date_expiration', '>', now());
+        });
             
         $produits = $query->paginate(10);
         
@@ -207,9 +223,9 @@ class GestionVente extends Component
         if (!empty($this->selectedProduits)) {
             $panier = Produit::whereIn('id', $this->selectedProduits)->get();
             
-            foreach ($panier as $produit) {
-                $quantity = $this->quantities[$produit->id] ?? 0;
-                $total += $produit->prix_vente * $quantity;
+            foreach ($panier as $prod) {
+                $quantity = $this->quantities[$prod->id] ?? 0;
+                $total += $prod->prix_vente * $quantity;
             }
         }
         
@@ -254,12 +270,14 @@ class GestionVente extends Component
         }
     }
 
+    // Fonction pour incrémenter directement la quantité
     public function incrementQuantity($produitId)
     {
         $currentQty = $this->quantities[$produitId] ?? 1;
         $this->updateQuantity($produitId, $currentQty + 1);
     }
     
+    // Fonction pour décrémenter directement la quantité
     public function decrementQuantity($produitId)
     {
         $currentQty = $this->quantities[$produitId] ?? 1;
@@ -270,18 +288,21 @@ class GestionVente extends Component
     
     public function updateFilteredClients()
     {
-        $this->filteredClients = empty($this->clientSearch) 
-            ? Client::take(10)->get()
-            : Client::where('nom', 'like', '%' . $this->clientSearch . '%')
+        if (empty($this->clientSearch)) {
+            $this->filteredClients = Client::take(10)->get();
+        } else {
+            $this->filteredClients = Client::where('nom', 'like', '%' . $this->clientSearch . '%')
+                ->orWhere('adresse', 'like', '%' . $this->clientSearch . '%')
                 ->orWhere('telephone', 'like', '%' . $this->clientSearch . '%')
                 ->take(10)
                 ->get();
+        }
     }
     
     public function selectClient($id)
     {
         $this->clientId = $id;
-        $this->clientSearch = Client::find($id)->nom;
+        $this->clientSearch = Client::find($id)->nom; // AJOUTER: afficher le nom du client sélectionné
         $this->resetErrorBag('clientId');
     }
     
@@ -298,7 +319,7 @@ class GestionVente extends Component
         $this->modalType = 'new-client';
         $this->showModal = true;
     }
-
+    
     public function createClient()
     {
         $this->validate([
@@ -308,7 +329,13 @@ class GestionVente extends Component
             'newClient.adresse' => 'nullable|string|max:255',
         ]);
         
-        $client = Client::create($this->newClient);
+        $client = Client::create([
+            'nom' => $this->newClient['nom'],
+            'telephone' => $this->newClient['telephone'],
+            'email' => $this->newClient['email'] ?? null,
+            'adresse' => $this->newClient['adresse'] ?? null,
+        ]);
+        
         $this->clientId = $client->id;
         $this->clients = Client::all();
         $this->showModal = false;
@@ -316,12 +343,13 @@ class GestionVente extends Component
         session()->flash('message', 'Client créé avec succès');
     }
     
+    // Méthodes existantes pour modal, etc.
     public function openModal($type, $produitId = null)
     {
         $this->modalType = $type;
         
         if ($type === 'details' && $produitId) {
-            $this->selectedProduit = Produit::with('sousRayon.rayon')->find($produitId);
+            $this->selectedProduit = Produit::find($produitId);
         }
         
         $this->showModal = true;
@@ -337,19 +365,32 @@ class GestionVente extends Component
     {
         return Vente::with('client', 'detailsVentes.produit')
             ->where('user_id', Auth::id())
-            ->whereDate('created_at', now()->toDateString())
+            ->whereDate('created_at', now()->toDateString()) // Filtre par date du jour
             ->latest()
             ->get();
     }
-
+    
+    public function getProduitsExpiration()
+    {
+        $oneMonthFromNow = now()->addMonth();
+        
+        return Produit::whereNotNull('date_expiration')
+            ->where('date_expiration', '<=', $oneMonthFromNow)
+            ->where('date_expiration', '>', now())
+            ->where('stock', '>', 0)
+            ->orderBy('date_expiration')
+            ->get();
+    }
+    
     public function getProduitsLowStock()
     {
-        return Produit::where('stock', '<', 10)
+        return Produit::where('stock', '<', DB::raw('seuil_alerte'))
             ->where('stock', '>', 0)
             ->orderBy('stock')
             ->get();
     }
     
+    // Méthode pour déboguer les erreurs de validation
     public function getErrorsProperty()
     {
         return $this->getErrorBag()->toArray();

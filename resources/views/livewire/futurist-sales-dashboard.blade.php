@@ -97,28 +97,7 @@
                     </div>
                 </div>
     
-                <!-- Carte 3: Médicaments vendus -->
-                <div class="futurist-card bg-gradient-to-br from-green-900 to-emerald-800 rounded rounded-lg">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm font-medium text-emerald-200">Médicaments vendus</p>
-                                <p class="text-3xl font-bold mt-2">{{ $this->medicamentsSold }}</p>
-                            </div>
-                            <div class="futurist-icon ">
-                                <i class="fas fa-pills"></i>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="flex items-center text-sm text-emerald-200">
-                                <span class="{{ $this->medicamentsTrend > 0 ? 'text-green-400' : 'text-red-400' }}">
-                                    {{ $this->medicamentsTrend > 0 ? '↑' : '↓' }} {{ abs($this->medicamentsTrend) }}%
-                                </span>
-                                <span class="ml-2">vs période précédente</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
     
                 <!-- Carte 4: Panier moyen -->
                 <div class="futurist-card bg-gradient-to-br from-red-900 to-pink-800 rounded rounded-lg ">
@@ -336,7 +315,7 @@
                             </div>
                         </div>
                         
-                        <h4 class="text-sm font-medium text-gray-400 mb-2">MÉDICAMENTS</h4>
+                        <h4 class="text-sm font-medium text-gray-400 mb-2">Produits</h4>
                         <div class="bg-gray-750 rounded-lg overflow-hidden">
                             <table class="min-w-full divide-y divide-gray-700">
                                 <thead class="bg-gray-700">
@@ -361,10 +340,10 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10 bg-indigo-900 rounded-full flex items-center justify-center">
-                                                    <i class="fas fa-pills text-indigo-400"></i>
+                                                    <i class="fa-solid fa-bowl-food"></i> 
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-100">{{ $detail->medicament->nom }}</div>
+                                                    <div class="text-sm font-medium text-gray-100">{{ $detail->produit->nom }}</div>
                                                     <div class="text-xs text-gray-400">{{ $detail->medicament->categorie->nom ?? '' }}</div>
                                                 </div>
                                             </div>
@@ -418,14 +397,14 @@
                 </div>
             </div>
     
-            <!-- Top médicaments -->
+            <!-- Top Produits -->
             <div class="futurist-card bg-gray-800">
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-gray-100 mb-4 flex items-center">
-                        <i class="fas fa-star mr-2 text-yellow-400"></i> Top 5 médicaments
+                        <i class="fas fa-star mr-2 text-yellow-400"></i> Top 5 Produits
                     </h3>
                     <div class="space-y-4">
-                        @foreach($this->topMedicaments as $medicament)
+                        @foreach($this->topProduits as $medicament)
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-900 flex items-center justify-center">
                                 <i class="fas fa-pills text-indigo-400"></i>
@@ -438,7 +417,7 @@
                                 <div class="mt-1">
                                     <div class="h-1 w-full bg-gray-700 rounded-full">
                                         <div class="h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full" 
-                                             style="width: {{ ($medicament->total_quantity / max($topMedicaments->max('total_quantity'), 1)) * 100 }}%"></div>
+                                             style="width: {{ ($medicament->total_quantity / max($topProduits->max('total_quantity'), 1)) * 100 }}%"></div>
                                     </div>
                                 </div>
                             </div>

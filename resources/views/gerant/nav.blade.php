@@ -18,24 +18,27 @@
                     <x-nav-link href="{{ route('produits.index') }}" :active="request()->routeIs('produits.index')">
                         {{ __('Produits') }}
                     </x-nav-link>
-                    @endif
                     
                     <x-nav-link href="{{ route('fournisseurs.index') }}" :active="request()->routeIs('fournisseurs.index')">
                         {{ __('Fournisseurs') }}
                     </x-nav-link>
                     
+                    @endif
+
+                    
                     <x-nav-link href="{{ route('clients.index') }}" :active="request()->routeIs('clients.index')">
                         {{ __('Clients') }}
                     </x-nav-link>
                     
-                    <x-nav-link href="{{ route('ventes.index') }}" :active="request()->routeIs('ventes.index')">
-                        {{ __('Ventes') }}
-                    </x-nav-link>
                     
                     @if (auth()->user()->isGerant() || auth()->user()->isSuperviseur())
                     <x-nav-link href="{{ route('achats.index') }}" :active="request()->routeIs('achats.index')">
                         {{ __('Achats') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('ventes.index') }}" :active="request()->routeIs('ventes.index')">
+                        {{ __('Ventes') }}
+                    </x-nav-link>
+                    
 
                     <x-nav-link href="{{ route('rayons.index') }}" :active="request()->routeIs('rayons.index')">
                         {{ __('Rayons') }}

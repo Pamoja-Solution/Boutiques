@@ -24,13 +24,11 @@ class DatabaseSeeder extends Seeder
 
 */
 
-/*
 Client::factory(130)->create();
-*/
         $this->call([
 
-           FournisseurSeeder::class,
-           CategorieSeeder::class,
+           //FournisseurSeeder::class,
+           //CategorieSeeder::class,
             //MedicamentSeeder::class,
             //VentesTableSeeder::class,
             //DetailsVenteTableSeeder::class,

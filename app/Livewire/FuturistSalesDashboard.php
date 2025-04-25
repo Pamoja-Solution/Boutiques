@@ -6,7 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Vente;
 use App\Models\Client;
-use App\Models\Medicament;
+use App\Models\Produit;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Exports\VentesExport;
@@ -56,26 +56,26 @@ class FuturistSalesDashboard extends Component
     }
 
     public function loadChartData()
-{
-    $salesData = Vente::query()
-        ->selectRaw('DATE(created_at) as date, SUM(total) as total')
-        ->whereBetween('created_at', [
-            Carbon::parse($this->startDate)->startOfDay(),
-            Carbon::parse($this->endDate)->endOfDay()
-        ])
-        ->groupBy('date')
-        ->orderBy('date')
-        ->get();
+    {
+        $salesData = Vente::query()
+            ->selectRaw('DATE(created_at) as date, SUM(total) as total')
+            ->whereBetween('created_at', [
+                Carbon::parse($this->startDate)->startOfDay(),
+                Carbon::parse($this->endDate)->endOfDay()
+            ])
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
 
-    $this->salesChartData = [
-        'labels' => $salesData->pluck('date')->map(function ($date) {
-            return Carbon::parse($date)->format('d M');
-        })->toArray(),
-        'data' => $salesData->pluck('total')->toArray()
-    ];
+        $this->salesChartData = [
+            'labels' => $salesData->pluck('date')->map(function ($date) {
+                return Carbon::parse($date)->format('d M');
+            })->toArray(),
+            'data' => $salesData->pluck('total')->toArray()
+        ];
 
-    $this->dispatch('updateSalesChart', data: $this->salesChartData);
-}
+        $this->dispatch('updateSalesChart', data: $this->salesChartData);
+    }
 
     public function sortBy($field)
     {
@@ -90,7 +90,7 @@ class FuturistSalesDashboard extends Component
 
     public function showDetails($saleId)
     {
-        $this->selectedSale = Vente::with(['client', 'details.medicament.categorie'])->find($saleId);
+        $this->selectedSale = Vente::with(['client', 'details.produit'])->find($saleId);
         $this->showDetailsModal = true;
     }
 
@@ -102,7 +102,7 @@ class FuturistSalesDashboard extends Component
 
     public function printInvoice($saleId)
     {
-        $vente = Vente::with(['client', 'details.medicament'])->findOrFail($saleId);
+        $vente = Vente::with(['client', 'details.produit'])->findOrFail($saleId);
 
         $pdf = Pdf::loadView('pdf.invoice', compact('vente'))
                 ->setPaper([0, 0, 226.77, 425.19]); // 80mm x 150mm en points (1mm ≈ 2.83 points)
@@ -116,15 +116,14 @@ class FuturistSalesDashboard extends Component
     public function sendEmail($saleId)
     {
         // Logique pour envoyer la facture par email
-        $this->dispatch('notify', message: 'Facture #' . $saleId . ' envoyée par email'); // Modification ici
+        $this->dispatch('notify', message: 'Facture #' . $saleId . ' envoyée par email');
     }
 
     public function exportToExcel()
     {
         // Logique pour exporter vers Excel
-        $this->dispatch('notify', message: 'Exportation vers Excel en cours...'); // Modification ici
+        $this->dispatch('notify', message: 'Exportation vers Excel en cours...');
         return Excel::download(new VentesExport, 'ventes.xlsx');
-
     }
 
     public function resetFilters()
@@ -145,10 +144,9 @@ class FuturistSalesDashboard extends Component
 
     public function getTotalSalesProperty()
     {
-       
         return Vente::query()
             ->whereBetween('created_at', [$this->startDate, Carbon::parse($this->endDate)->endOfDay()])
-            ->where('user_id',Auth::user()->id)
+            ->where('user_id', Auth::user()->id)
             ->sum('total');
     }
 
@@ -159,7 +157,7 @@ class FuturistSalesDashboard extends Component
             ->count();
     }
 
-    public function getMedicamentsSoldProperty()
+    public function getProduitsSoldProperty()
     {
         return DB::table('details_vente')
             ->join('ventes', 'details_vente.vente_id', '=', 'ventes.id')
@@ -205,7 +203,7 @@ class FuturistSalesDashboard extends Component
         return $previousPeriod != 0 ? round(($currentPeriod - $previousPeriod) / $previousPeriod * 100, 2) : 0;
     }
 
-    public function getMedicamentsTrendProperty()
+    public function getProduitsTrendProperty()
     {
         $currentPeriod = DB::table('details_vente')
             ->join('ventes', 'details_vente.vente_id', '=', 'ventes.id')
@@ -246,14 +244,14 @@ class FuturistSalesDashboard extends Component
         return Client::orderBy('name')->get();
     }
 
-    public function getTopMedicamentsProperty()
+    public function getTopProduitsProperty()
     {
-        return Medicament::query()
-            ->select('medicaments.*', DB::raw('SUM(details_vente.quantite) as total_quantity'))
-            ->join('details_vente', 'details_vente.medicament_id', '=', 'medicaments.id')
+        return Produit::query()
+            ->select('produits.*', DB::raw('SUM(details_vente.quantite) as total_quantity'))
+            ->join('details_vente', 'details_vente.produit_id', '=', 'produits.id')
             ->join('ventes', 'details_vente.vente_id', '=', 'ventes.id')
             ->whereBetween('ventes.created_at', [$this->startDate, Carbon::parse($this->endDate)->endOfDay()])
-            ->groupBy('medicaments.id')
+            ->groupBy('produits.id')
             ->orderByDesc('total_quantity')
             ->limit(5)
             ->get();
@@ -287,11 +285,10 @@ class FuturistSalesDashboard extends Component
 
     public function render()
     {
-        //dd($this->sales->items()); // Vérifiez storage/logs/laravel.log
         return view('livewire.futurist-sales-dashboard', [
             'sales' => $this->sales,
             'clients' => $this->clients,
-            'topMedicaments' => $this->topMedicaments,
+            'topProduits' => $this->topProduits,
         ]);
     }
 }
