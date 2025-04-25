@@ -3,14 +3,18 @@
 namespace App\Livewire;
 
 use App\Models\Fournisseur;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 
 #[Layout('layouts.app')]
 class GestionFournisseurs extends Component
 {
-    use WithPagination;
+    use WithPagination, AuthorizesRequests;
 
     public $search = '';
     public $fournisseurId = null;
@@ -23,6 +27,8 @@ class GestionFournisseurs extends Component
 
     public function render()
     {
+        //dd(Auth::user());
+        abort_if(!auth()->user()?->isGerant(), 403);  
         $fournisseurs = Fournisseur::where('nom', 'like', '%' . $this->search . '%')
             ->orWhere('adresse', 'like', '%' . $this->search . '%')
             ->orWhere('telephone', 'like', '%' . $this->search . '%')

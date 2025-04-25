@@ -69,7 +69,7 @@
                                 @forelse($produits as $produit)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $produit->nom }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ Str::limit($produit->nom,15) }}</div>
                                             <div class="text-xs text-gray-500">{{ $produit->reference_interne }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -81,7 +81,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
                                                 @if($produit->sousRayon)
-                                                    {{ $produit->sousRayon->rayon->nom }} / {{ $produit->sousRayon->nom }}
+                                                    {{ Str::limit($produit->sousRayon->rayon->nom,14) }} / {{ $produit->sousRayon->nom }}
                                                 @else
                                                     Non classé
                                                 @endif

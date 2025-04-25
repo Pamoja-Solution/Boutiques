@@ -14,11 +14,11 @@
                     <x-nav-link href="{{ route('users.index') }}" :active="request()->routeIs('users.index')">
                         {{ __('Utilisateurs') }}
                     </x-nav-link>
-                    @endif
                     
                     <x-nav-link href="{{ route('produits.index') }}" :active="request()->routeIs('produits.index')">
                         {{ __('Produits') }}
                     </x-nav-link>
+                    @endif
                     
                     <x-nav-link href="{{ route('fournisseurs.index') }}" :active="request()->routeIs('fournisseurs.index')">
                         {{ __('Fournisseurs') }}

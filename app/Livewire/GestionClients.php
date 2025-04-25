@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Client;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -10,7 +12,7 @@ use Livewire\Attributes\Layout;
 #[Layout('layouts.app')]
 class GestionClients extends Component
 {
-    use WithPagination;
+    use WithPagination,AuthorizesRequests;
 
     public $search = '';
     public $clientId = null;
@@ -25,6 +27,8 @@ class GestionClients extends Component
 
     public function render()
     {
+        abort_if(!Auth::user()?->isGerant(), 403);  
+
         $clients = Client::where('nom', 'like', '%' . $this->search . '%')
             ->orWhere('telephone', 'like', '%' . $this->search . '%')
             ->orWhere('email', 'like', '%' . $this->search . '%')
