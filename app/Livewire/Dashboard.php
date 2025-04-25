@@ -35,9 +35,9 @@ class Dashboard extends Component
         
         // Top 5 des médicaments les plus vendus
         $topSellingProduits = DB::table('details_vente')
-            ->join('Produits', 'details_vente.Produit_id', '=', 'Produits.id')
-            ->select('Produits.nom', DB::raw('SUM(details_vente.quantite) as total_sold'))
-            ->groupBy('Produits.nom')
+            ->join('produits', 'details_vente.Produit_id', '=', 'Produits.id')
+            ->select('produits.nom', DB::raw('SUM(details_vente.quantite) as total_sold'))
+            ->groupBy('produits.nom')
             ->orderBy('total_sold', 'desc')
             ->limit(5)
             ->get();
